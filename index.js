@@ -4,6 +4,7 @@ $(document).ready(function() {
     var elTask = "<a href='#' class='edit-button'><span class='glyphicon glyphicon-pencil'></span></a>" +
         "<a href='#' class='remove-button'><span class='glyphicon glyphicon-remove'></span></a>";
 
+
     function showTasks() {
         var Storage_size =localStorage.length;
         if (Storage_size>0){
@@ -12,7 +13,6 @@ $(document).ready(function() {
                 $('.todo-list').append("<li class='item' data-item=" + localStorage.key(i)  + ">" + localStorage[key] + elTask + "</li>");
             }
         }
-
     }
     showTasks();
 
@@ -23,17 +23,30 @@ $(document).ready(function() {
         if(e.keyCode === 13) {
             e.target.value = "";
                 $('.item').each(function (index, el) {
-                    var element_Id = $(this).attr('data-item');
+                    var element_Id = $(this).data('item');
                     if(element_Id>local_Id) {
                         local_Id = element_Id;
 
                     }
                 })
             local_Id++;
-            localStorage.setItem('taskId_'+local_Id, str);
-            localValue = localStorage.getItem('taskId_' + local_Id);
+            localStorage.setItem(local_Id, str);
+            localValue = localStorage.getItem(local_Id);
             $('.todo-list').append("<li class='item' data-item='" + local_Id + "'><span class='item-value'>" + localValue +
                 elTask+"</span></li>");
+
+
+            $.post("/test/index.php", { id: local_Id, text: localValue});
+
+            // $.ajax({
+            //     url: '/test/index.php',         /* Куда пойдет запрос */
+            //     method: 'POST',             /* Метод передачи (post или get) */
+            //     data: {id: local_Id, text: localValue},     /* Параметры передаваемые в запросе. */
+            //     success: function(data){   /* функция которая будет выполнена после успешного запроса.  */
+            //         alert(data);            /* В переменной data содержится ответ от index.php. */
+            //     }
+
+            // });
         }
     });
     $('.btn-default').click(function () {
@@ -43,7 +56,7 @@ $(document).ready(function() {
     })
     $('.todo-list').on('click','.remove-button',function () {
         var removeTask = $(this).closest('.item','todo-list');
-        localStorage.removeItem("taskId_"+removeTask.attr("data-item"));
+        localStorage.removeItem(removeTask.attr("data-item"));
         removeTask.remove();
     })
 
@@ -54,14 +67,19 @@ $(document).ready(function() {
 
         $('.save-button').on('click',function () {
             var newTask=$('.edit-task').val();
-            localStorage.setItem('taskId_'+editTask.attr('data-item'),newTask);
+            localStorage.setItem(editTask.attr('data-item'),newTask);
             editTask.text(newTask);
             editTask.append(elTask);
+            $.post("/test/index.php", { id: local_Id, text: newTask} );
         })
 
         $('.cancel-button').on('click', function () {
-            editTask.text(localStorage.getItem('taskId_' + editTask.attr('data-item')));
+            editTask.text(localStorage.getItem(editTask.attr('data-item')));
             editTask.append(elTask);
         })
     })
+
+
+
 });
+
